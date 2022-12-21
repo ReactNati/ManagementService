@@ -3,18 +3,24 @@ import AddFormService from '../components/service/AddFormService';
 import { Colors } from '../constants/styles'
 import {useSelector,useDispatch} from 'react-redux'
 import {service} from '../store/redux/service';
-
+import { insertService } from '../util/database';
 function ManageService({ route, navigation }) {
 
   const editedServiceId = route.params?.serviceId;
   const isEditing = !!editedServiceId;
 
-  function confirmHandler(expenseData){
+ async function confirmHandler(expenseData){
     console.log("expenseData" +JSON.stringify(expenseData))
     try {
-
-    const dispatch = useDispatch();
-    dispatch(service({service:expenseData}))
+    //to do redux when add fetch order
+    // const dispatch = useDispatch();
+    // dispatch(service({service:expenseData}))
+    
+      await insertService(expenseData);
+          // navigation.navigate("AllPlaces",{
+          //     place: placeData
+          // })
+       
     navigation.goBack();
     }catch(error){
       console.log("error" + error)

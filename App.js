@@ -16,6 +16,10 @@ import {logout} from './store/redux/auth';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import ServiceDetails from './screens/ServiceDetails';
 import ManageService from './screens/ManageService';
+import AppLoading from 'expo-app-loading';
+import { init } from './util/database';
+import LoadingOverlay from './components/ui/LoadingOverlay';
+
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 function AuthStack() {
@@ -92,6 +96,19 @@ function Navigation() {
 }
 
 export default function App() {
+  const [dbInitialized,setDbInitialized]= useState(); // to do initialized "spinner,loading"
+
+  useEffect(()=>{
+    init().then(()=>{
+      setDbInitialized(true)
+    }).catch((error) =>{
+      console.log(error)
+    });
+  },[])
+
+  if(!dbInitialized){return <LoadingOverlay message="Creating database ..." />
+}
+
   return (
     <>
       <StatusBar style="dark" />

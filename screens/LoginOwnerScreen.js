@@ -17,7 +17,7 @@ function LoginOwnerScreen() {
     setIsAuthenticating(true);
     const token = await login(email,password);
    // authCtx.authenticate(token);
-    dispatch(authenticate({token:token[0]}))
+    dispatch(authenticate({token:token[0],email:token[2]}))
     setIsAuthenticating(false);
 
     }catch(error){

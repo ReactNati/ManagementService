@@ -1,14 +1,21 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState,useEffect } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import moment from 'moment/moment';
 import Input from './Input';
 import Button from '../ui/Button';
 import { getFormattedDate } from '../../util/date';
 import { Colors } from '../../constants/styles';
 import { SelectList } from 'react-native-dropdown-select-list'
+import { Service } from '../../models/service';
+import ImagePicker from './ImagePicker';
+import {useSelector} from 'react-redux'
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   const [selected, setSelected] = useState("");
+  const [takePhoto, setTakePhoto] = useState();
+
+  const email = useSelector((state) => state.auth.email)
 
   const data = [
     { key: '1', value: 'production' },
@@ -19,6 +26,10 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
   const [inputs, setInputs] = useState({
     name: {
       value: defaultValues ? defaultValues.name : '',
+      isValid: true,
+    },
+    category:{
+      value:"",
       isValid: true,
     },
     price: {
@@ -39,11 +50,17 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
       // value: defaultValues ? getFormattedDate(defaultValues.date) : '',
       // isValid: true,
     },
+    dateEnd:{
+      value: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+      isValid: true
+    },
     description: {
       value: defaultValues ? defaultValues.description : '',
       isValid: true,
     },
   });
+ 
+ 
 
   function setInputsForm(inputIdentifier, enteredValue) {
     setInputs((curInputs) => {
@@ -53,7 +70,9 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
       };
     });
   }
-
+  function ontakeImageForm(image) {
+    setTakePhoto(image)
+  }
   function inputChangedHandler(inputIdentifier, enteredValue) {
     const finishPrice = 0;
 
@@ -73,42 +92,60 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
   }
 
   function submitHandler() {
-    const expenseData = {
-      price: +inputs.price.value,
-      date: new Date(inputs.date.value),
-      description: inputs.description.value,
-    };
+    // const expenseData = {
+    //   //category,imageUri,price,date,description
+    //   category: selected,
+    //   //imageUri: ,
+    //   price: +inputs.price.value,
+    //   date: new Date(inputs.date.value),
+    //   description: inputs.description.value,
+    // };
+    
 
+    const expenseData = new Service(selected, takePhoto, +inputs.price.value, inputs.date.value, inputs.description.value,email,inputs.dateEnd.value)
+    console.log(+inputs.price.value)
     const amountIsValid = !isNaN(expenseData.price) && expenseData.price > 0;
     const dateIsValid = expenseData.date.toString() !== 'Invalid Date';
+    const dateEnd = expenseData.date.toString() !== 'Invalid Date';
     const descriptionIsValid = expenseData.description.trim().length > 0;
+    const category = selected !== ""
 
-    if (!amountIsValid || dateIsValid || !descriptionIsValid) {
+    console.log(amountIsValid + dateIsValid + !descriptionIsValid + !category)
+    if (!amountIsValid || !dateIsValid || !descriptionIsValid || !category || !dateEnd) {
       // Alert.alert('Invalid input', 'Please check your input values');
-      console.log("" + amountIsValid+ dateIsValid+descriptionIsValid)
+      console.log("data" + amountIsValid + dateIsValid + !descriptionIsValid + !category)
       setInputs((curInputs) => {
         return {
-          price: { value: curInputs.price.value, isValid: !amountIsValid  },
-          date: { value: curInputs.date.value, isValid:  !dateIsValid },
+          price: { value: curInputs.price.value, isValid: !amountIsValid },
+          category: { value: selected, isValid: !category},
+          date: { value: curInputs.date.value, isValid: !dateIsValid },
           description: {
             value: curInputs.description.value,
             isValid: descriptionIsValid,
           },
+          dateEnd: { value: curInputs.date.value, isValid: !dateEnd }
         };
       });
       return;
     }
 
     onSubmit(expenseData);
-  }
-
-  const formIsInvalid =
     
+
+  }
+ function onPressDatePicker(date){
+  setInputsForm("dateEnd", date.toISOString().slice(0, 10))
+console.log("onPressDatePicker: " + date)
+  }
+  const formIsInvalid =
+
     !inputs.price.isValid ||
     !inputs.date.isValid ||
-    !inputs.description.isValid;
+    !inputs.description.isValid ||
+    !inputs.category.isValid;
 
   return (
+    <ScrollView>
     <View>
 
       <View style={styles.form}>
@@ -170,10 +207,17 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
 
           }}
         /> */}
+        <View style={{  
+          flexDirection: "row",
+        alignItems: 'flex-start',
+        borderRadius: 6,
+        
+        
+        }}>
         <Input
           label="Date"
           invalid={!inputs.date.isValid}
-          editableTextInput= {false}
+          editableTextInput={false}
           textInputConfig={{
             placeholder: 'YYYY-MM-DD',
             maxLength: 10,
@@ -181,6 +225,20 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
             value: inputs.date.value,
           }}
         />
+          <Input
+          label="DateEnd"
+          invalid={!inputs.date.isValid}
+          editableTextInput={true}
+          isDatePicker={true}
+          onPressDatePicker={onPressDatePicker}
+          textInputConfig={{
+            placeholder: 'YYYY-MM-DD',
+            maxLength: 10,
+            //onChangeText: inputChangedHandler.bind(this, 'date'),
+            value: inputs.dateEnd.value,
+          }}
+        />
+        </View>
         <Input
           label="Description"
           invalid={!inputs.description.isValid}
@@ -192,6 +250,7 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
             value: inputs.description.value,
           }}
         />
+        <ImagePicker takeImageForm={ontakeImageForm} />
         {formIsInvalid && (
           <Text style={styles.errorText}>
             Invalid input values - please check your entered data!
@@ -202,11 +261,12 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
             Cancel
           </Button>
           <Button style={styles.button} onPress={submitHandler}>
-           Confirm
+            Confirm
           </Button>
         </View>
       </View>
     </View>
+    </ScrollView>
   );
 }
 

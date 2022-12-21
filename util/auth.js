@@ -12,9 +12,10 @@ export async function authenticate(mode,email,password){
         }
     )
     console.log(response.data)
+    const emailResponse = response.data.email;
     const tokenId = response.data.idToken;
     const refreshToken = response.data.refreshToken;
-    const tokens = [tokenId,refreshToken]
+    const tokens = [tokenId,refreshToken,emailResponse]
     return tokens;
         
 }

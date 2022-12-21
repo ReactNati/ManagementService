@@ -1,10 +1,15 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Colors } from '../../constants/styles';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import moment from 'moment/moment';
+import { useState } from 'react';
 
-function Input({ label, invalid, style, textInputConfig,editableTextInput }) {
+function Input({ label, invalid, style, textInputConfig,editableTextInput,onPressDatePicker,isDatePicker }) {
 
   const inputStyles = [styles.input];
+  const [date, setDate] = useState(new Date());
+  //const [time, setTime] = useState(new Date());
 
   if (textInputConfig && textInputConfig.multiline) {
     inputStyles.push(styles.inputMultiline)
@@ -13,11 +18,47 @@ function Input({ label, invalid, style, textInputConfig,editableTextInput }) {
   if (invalid) {
     inputStyles.push(styles.invalidInput);
   }
+ 
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setDate(currentDate);
+    
+    onPressDatePicker(currentDate);
+  };
+
+  // function onTimeChange(event, selectedDate){
+  //   console.log("Eventrt" +JSON.stringify(event))
+    
+  //   const currentDate = selectedDate;
+  //   setTime(currentDate);
+    
+  //   onPressDatePicker(date);
+  // };
+
+  const showMode = (currentMode) => {
+    if(isDatePicker){
+      
+    DateTimePickerAndroid.open({
+      value: date,
+      onChange,
+      mode: currentMode,
+      is24Hour: true,
+    });
+    
+  }
+  
+  };
+  
+  const showDatepicker = () => {
+    showMode('date');
+    //showMode('time'); to do
+
+  };
 
   return (
     <View style={[styles.inputContainer, style]}>
       <Text style={[styles.label, invalid && styles.invalidLabel]}>{label}</Text>
-      <TextInput editable={editableTextInput} style={inputStyles} {...textInputConfig} />
+      <TextInput editable={editableTextInput} style={inputStyles} {...textInputConfig} onPressIn={showDatepicker} />
     </View>
   );
 }

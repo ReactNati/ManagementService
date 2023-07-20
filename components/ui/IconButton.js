@@ -1,10 +1,10 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-function IconButton({ icon, color, size, onPress }) {
+function IconButton({ icon, color, size, onPress,ownStyle }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.button, pressed && styles.pressed,ownStyle]}
       onPress={onPress}
     >
       <Ionicons name={icon} color={color} size={size} />
@@ -16,7 +16,7 @@ export default IconButton;
 
 const styles = StyleSheet.create({
   button: {
-    margin: 8,
+    //marginRight: 28,
     borderRadius: 20,
   },
   pressed: {

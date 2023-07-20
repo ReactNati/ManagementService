@@ -1,13 +1,14 @@
 export class Service{
-    constructor(category,imageUri,price,date,description,owner,dateEnd){
-        this.id = new Date().toString() + Math.random().toString();
+    constructor(idCustomer,category,imageUri,price,date,dateEnd,description,owner,colorCalendar,id){
+        this.idCustomer = idCustomer;
         this.category = category;
         this.imageUri = imageUri;
         this.price = price;
         this.date = date; 
+        this.dateEnd = dateEnd;
         this.description = description; 
         this.owner = owner;
-        this.dateEnd = dateEnd;
-
+        this.colorCalendar =colorCalendar
+        this.id = id;
     }
 }

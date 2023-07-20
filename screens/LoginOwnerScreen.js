@@ -17,19 +17,22 @@ function LoginOwnerScreen() {
     setIsAuthenticating(true);
     const token = await login(email,password);
    // authCtx.authenticate(token);
-    dispatch(authenticate({token:token[0],email:token[2]}))
+    dispatch(authenticate({token:token[0],email:token[2],firstLaunch:true}))
     setIsAuthenticating(false);
 
     }catch(error){
       console.log("error:" + error)
       
       setIsAuthenticating(false)
-      Alert.alert("Authentication failed!","Please check your credential or try again later.")
+      Alert.alert("Authentication failed!","Please check your credential or try again later." + JSON.stringify(error))
     }
   }
 
   if(isAuthenticating){
-    return <LoadingOverlay message="Logging you in ..." />
+    
+      return <LoadingOverlay message="Logging you in ..." />
+
+   
   }
   
   return <AuthContent isLogin onAuthenticate={loginHandler} />;

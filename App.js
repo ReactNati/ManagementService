@@ -9,7 +9,7 @@ import { Colors } from './constants/styles';
 //import AuthContextProvider, { AuthContext } from './store/auth-context';
 import { useEffect, useState } from 'react';
 import IconButton from './components/ui/IconButton'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Provider,useSelector,useDispatch} from 'react-redux'
 import {store} from './store/redux/store'
 import {logout} from './store/redux/auth';
@@ -17,8 +17,12 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import ServiceDetails from './screens/ServiceDetails';
 import ManageService from './screens/ManageService';
 import AppLoading from 'expo-app-loading';
-import { init } from './util/database';
+import { init,initCustomer,initArchiveOrder } from './util/database';
 import LoadingOverlay from './components/ui/LoadingOverlay';
+import CustomerScreen from './screens/CustomerScreen';
+import Calendar from './screens/CalendarScreen';
+import CalendarScreen from './screens/CalendarScreen';
+import ArchiveOrders from './screens/ArchiveOrders';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -31,7 +35,9 @@ function AuthStack() {
         contentStyle: { backgroundColor: Colors.primary100 },
       }}
     >
-      <Stack.Screen name="Login" component={LoginOwnerScreen} />
+      <Stack.Screen name="Login" component={LoginOwnerScreen} options={
+        {headerShown:false}
+      } />
       <Stack.Screen name="Signup" component={RegisterScreen} />
     </Stack.Navigator>
   );
@@ -49,7 +55,7 @@ const dispatch = useDispatch();
       }}
     >
       <Drawer.Screen name="Welcome" component={HomeScreen} options={{
-        headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
+        headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20}  ownStyle={{marginRight:14}}
         onPress={()=> dispatch(logout())}
         />}
       }}/>
@@ -57,6 +63,21 @@ const dispatch = useDispatch();
         // headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
         // onPress={()=> dispatch(logout())}
         // />}
+      }}/>
+       <Drawer.Screen name="ArchiveOrders" component={ArchiveOrders} options={{
+        headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
+        onPress={()=> dispatch(logout())}
+        />}
+      }}/>
+      <Drawer.Screen name="Customers" component={CustomerScreen} options={{
+        headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
+        onPress={()=> dispatch(logout())}
+        />}
+      }}/>
+      <Drawer.Screen name="Calendar" component={CalendarScreen} options={{
+        headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
+        onPress={()=> dispatch(logout())}
+        />}
       }}/>
     </Drawer.Navigator>
   );
@@ -88,8 +109,8 @@ function Navigation() {
   return (
     <NavigationContainer>
       
-     {!isAuthenticated && <AuthStack />}
-     {isAuthenticated && <AuthenticatedStack />}
+     {!isAuthenticated && <AuthStack name="AuthStack" />}
+     {isAuthenticated && <AuthenticatedStack name="AuthenticatedStack"/>}
 
     </NavigationContainer>
   );
@@ -100,7 +121,14 @@ export default function App() {
 
   useEffect(()=>{
     init().then(()=>{
-      setDbInitialized(true)
+      initCustomer().then(()=>{
+        initArchiveOrder().then(()=>{
+          setDbInitialized(true)
+
+        });
+
+    })
+    
     }).catch((error) =>{
       console.log(error)
     });

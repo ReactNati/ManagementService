@@ -1,10 +1,20 @@
 import axios from 'axios';
-import {API_KEY} from '@env'
+//import Constants from 'expo-constants';
+//import {API_KEY} from 'react-native-dotenv'
+//const API_KEY = Constants.expoConfig.extra.API_KEY;
+//import { API_KEY } from 'react-native-dotenv'
+import { REACT_APP_API_KEY } from "@env"
+
+const apiKey = REACT_APP_API_KEY;
+
 export async function authenticate(mode,email,password){
-    console.log("jestemtut2")
-    console.log("ApiKey" + API_KEY);
+    console.log("API_KEY2" + JSON.stringify( { REACT_APP_API_KEY }))
+
+    console.log("API_KEY" + JSON.stringify(apiKey))
+    let tokens = null;
+    try{
     const response = await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=` + API_KEY,
+        `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=` + apiKey,
         {
             email: email,
             password: password,
@@ -15,17 +25,19 @@ export async function authenticate(mode,email,password){
     const emailResponse = response.data.email;
     const tokenId = response.data.idToken;
     const refreshToken = response.data.refreshToken;
-    const tokens = [tokenId,refreshToken,emailResponse]
+    tokens= [tokenId,refreshToken,emailResponse]
+    }catch(error){
+        console.log(error)
+    }
     return tokens;
         
 }
 
 export async function createUser(email,password){
-    console.log("jestemtut1")
-    console.log("ApiKey" + API_KEY);
+    
 
     const response = await axios.post(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + API_KEY,
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + apiKey,
         {
             email: email,
             password: password,
@@ -39,11 +51,10 @@ export async function createUser(email,password){
 }
 
 export async function refreshToken(refreshToken){
-    console.log("jestemtut")
-    console.log("ApiKey" + API_KEY);
+
 
     const response = await axios.post(
-        'https://securetoken.googleapis.com/v1/token?key=' + API_KEY,
+        'https://securetoken.googleapis.com/v1/token?key=' + apiKey,
         {
             grant_type: "refresh_token",
             refresh_token: refreshToken

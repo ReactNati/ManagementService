@@ -5,9 +5,10 @@ import FlatButton from '../ui/FlatButton';
 import AuthForm from './AuthForm';
 import { Colors } from '../../constants/styles';
 import { useNavigation } from '@react-navigation/native';
-
+import { Video, AVPlaybackStatus } from "expo-av";
+import { useEffect } from 'react';
+import { useRef } from 'react';
 function AuthContent({ isLogin, onAuthenticate }) {
-
   const navigation = useNavigation();
   const [credentialsInvalid, setCredentialsInvalid] = useState({
     email: false,
@@ -15,6 +16,14 @@ function AuthContent({ isLogin, onAuthenticate }) {
     confirmEmail: false,
     confirmPassword: false,
   });
+  const video = useRef(null);
+
+  useEffect(() => {
+    if (video) {
+      video.current.playAsync();
+    }
+  }, [video]);
+ 
 
   function switchAuthModeHandler() {
     if(isLogin){
@@ -54,7 +63,19 @@ function AuthContent({ isLogin, onAuthenticate }) {
   }
 
   return (
+    <>
+    <View style={styles.container}>
+    <Video
+    ref={video}
+    style={styles.video}
+    source={
+     require('../../assets/abstract.mp4' )    }
+    isLooping
+    resizeMode="cover"
+  />
+  </View>
     <View style={styles.authContent}>
+    
       <AuthForm
         isLogin={isLogin}
         onSubmit={submitHandler}
@@ -66,6 +87,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
         </FlatButton>
       </View>
     </View>
+    </>
   );
 }
 
@@ -73,7 +95,8 @@ export default AuthContent;
 
 const styles = StyleSheet.create({
   authContent: {
-    marginTop: 64,
+   // flex:1,
+    marginTop: 164,
     marginHorizontal: 32,
     padding: 16,
     borderRadius: 8,
@@ -86,5 +109,21 @@ const styles = StyleSheet.create({
   },
   buttons: {
     marginTop: 8,
+  },
+  video: {
+    
+    alignSelf: "center",
+    width: "100%",
+    height: "100%",
+  },
+  container: {
+    flex: 1,
+    height: "100%",
+    width: "100%",
+    justifyContent: "center",
+    resizeMode: "cover",
+    position: "absolute",
+    width: "100%",
+    flexDirection: "column",
   },
 });

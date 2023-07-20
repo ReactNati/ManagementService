@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "alignItems": "center",
+      "flex": 1,
+      "justifyContent": "center",
+      "padding": 32,
+    }
+  }
+>
+  <Text
+    style={
+      Object {
+        "fontSize": 16,
+        "marginBottom": 12,
+      }
+    }
+  >
+    Creating database ...
+  </Text>
+  <ActivityIndicator
+    size="large"
+  />
+</View>
+`;

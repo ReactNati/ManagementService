@@ -19,7 +19,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'white'
+        borderColor: 'white',
+        flex:1
     },
     pressed: {
         opacity: 0.7

@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "ManagementExpenses",
-    "slug": "ManagementExpenses",
-    "version": "1.0.0",
+    "name": "OrderManagement",
+    "slug": "OrderManagement",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "packagerOpts": { "config": "metro.config.js", "sourceExts": [ "js","jsx","svg","ts","tsx"] },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -24,10 +25,33 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.michal1995.OrderManagement"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "REACT_APP_API_KEY": "process.env.REACT_APP_API_KEY",
+      "eas": {
+        "projectId": "3f46869b-030b-4fa9-8fa5-89afad60bab1"
+      },
+      "plugins": [
+        [
+          "expo-notifications",
+          {
+           "icon": "./local/assets/icon.png",
+            "color": "#ffffff",
+            "sounds": [
+              "./local/assets/notification-sound.wav",
+              "./local/assets/notification-sound-other.wav"
+            ]
+          }
+        ]
+      ]
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-5936989251991214~6960010071"
   }
 }

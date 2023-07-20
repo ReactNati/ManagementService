@@ -1,20 +1,27 @@
 import * as SQLite from 'expo-sqlite';
+import { Customer } from '../models/customer';
 import { Service } from '../models/service';
 
 const database = SQLite.openDatabase('service.db')
+const databaseCustomer = SQLite.openDatabase('customer.db')
+const archiveOrders = SQLite.openDatabase('archiveOrders.db')
+
 
 export function init() {
     const promise = new Promise((resolve,reject) =>{
         database.transaction((tx)=>{
             tx.executeSql(`CREATE TABLE IF NOT EXISTS service (
             id INTEGER PRIMARY KEY NOT NULL,
+            idCustomer INTEGER NOT NULL,
             category TEXT NOT NULL,
-            imageUri TEXT NOT NULL,
+            imageUri TEXT,
             price TEXT NOT NULL,
             date TEXT NOT NULL,
             dateEnd TEXT NOT NULL,
-            description TEXT NOT NULL,
-            owner TEXT NOT NULL
+            description TEXT,
+            owner TEXT NOT NULL,
+            colorCalendar TEXT NOT NULL,
+            FOREIGN KEY(idCustomer) REFERENCES customer(idCustomer)
             )`,
             [],
             ()=>{resolve()},
@@ -25,13 +32,56 @@ export function init() {
     })
     return promise;
 }
-
+export function initArchiveOrder() {
+    const promise = new Promise((resolve,reject) =>{
+        archiveOrders.transaction((tx)=>{
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS archiveOrders (
+            id INTEGER PRIMARY KEY NOT NULL,
+            idCustomer INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            imageUri TEXT,
+            price TEXT NOT NULL,
+            date TEXT NOT NULL,
+            dateEnd TEXT NOT NULL,
+            description TEXT,
+            owner TEXT NOT NULL,
+            colorCalendar TEXT NOT NULL,
+            FOREIGN KEY(idCustomer) REFERENCES customer(idCustomer)
+            )`,
+            [],
+            ()=>{resolve()},
+            (_,error)=>{reject(error)}
+            
+            );
+        })
+    })
+    return promise;
+}
+export function initCustomer() {
+    const promise = new Promise((resolve,reject) =>{
+        databaseCustomer.transaction((tx)=>{
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS customer (
+            idCustomer INTEGER PRIMARY KEY NOT NULL,
+            name TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            adress TEXT NOT NULL,
+            contact TEXT NOT NULL
+            )`,
+            [],
+            ()=>{resolve()},
+            (_,error)=>{reject(error)}
+            
+            );
+        })
+    })
+    return promise;
+}
 export function insertService(service) {
     const promise =new Promise((resolve,reject) => {
         database.transaction((tx) => {
-            tx.executeSql(`INSERT INTO service (category,imageUri,price,date,description,owner,dateEnd) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            tx.executeSql(`INSERT INTO service (idCustomer,category,imageUri,price,date,dateEnd,description,owner,colorCalendar) VALUES (  ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                service.category,service.imageUri,service.price,service.date,service.description,service.owner,service.dateEnd
+              service.idCustomer,service.category,service.imageUri,service.price,service.date,service.dateEnd,service.description,service.owner,service.colorCalendar
             ],
             (_, result ) => {
                 
@@ -46,7 +96,69 @@ export function insertService(service) {
     });
     return promise;
 }
-
+export function insertArchiveOrders(service) {
+    const promise =new Promise((resolve,reject) => {
+        archiveOrders.transaction((tx) => {
+            tx.executeSql(`INSERT INTO archiveOrders (idCustomer,category,imageUri,price,date,dateEnd,description,owner,colorCalendar) VALUES (  ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              service.idCustomer,service.category,service.imageUri,service.price,service.date,service.dateEnd,service.description,service.owner,service.colorCalendar
+            ],
+            (_, result ) => {
+                
+                console.log(result)
+                resolve(result)
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function insertCustomer(customer) {
+    const promise =new Promise((resolve,reject) => {
+        databaseCustomer.transaction((tx) => {
+            tx.executeSql(`INSERT INTO customer (name,lastName,adress,contact) VALUES ( ?, ?, ?, ?)`,
+            [
+                customer.name,customer.lastName,customer.adress,customer.contact
+            ],
+            (_, result ) => {
+                
+                console.log("insertcusto"+JSON.stringify(result))
+                resolve(result)
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function fetchCustomer() {
+    const promise = new Promise((resolve,reject) => {
+        databaseCustomer.transaction((tx) => {
+            tx.executeSql(`Select * FROM customer`,
+            [],
+            (_, result ) => {
+                console.log("assadasd1"+JSON.stringify(result.rows._array[2]))
+                const customer = [];
+                
+                for (const dp of result.rows._array){
+                    customer.push(new Customer(dp.idCustomer,dp.name,dp.lastName,dp.adress,dp.contact))
+                }
+                
+                resolve(customer)
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
 export function fetchServices(owner) {
     const promise = new Promise((resolve,reject) => {
         database.transaction((tx) => {
@@ -55,7 +167,8 @@ export function fetchServices(owner) {
             (_, result ) => {
                 const services = [];
                 for (const dp of result.rows._array){
-                    services.push(new Service(dp.category,dp.imageUri,dp.price,dp.date,dp.description,dp.owner,dp.dateEnd))
+                    
+                    services.push(new Service(dp.idCustomer,dp.category,dp.imageUri,dp.price,dp.date,dp.dateEnd,dp.description,dp.owner,dp.colorCalendar,dp.id))
                 }
                 console.log(result)
                 resolve(services)
@@ -68,15 +181,115 @@ export function fetchServices(owner) {
     });
     return promise;
 }
-
-export function fetchPlaceDetails(id) {
+export function fetchArchiveOrders(owner) {
+    const promise = new Promise((resolve,reject) => {
+        archiveOrders.transaction((tx) => {
+            tx.executeSql(`Select * FROM archiveOrders WHERE owner = ?`,
+            [owner],
+            (_, result ) => {
+                const services = [];
+                for (const dp of result.rows._array){
+                    
+                    services.push(new Service(dp.idCustomer,dp.category,dp.imageUri,dp.price,dp.date,dp.dateEnd,dp.description,dp.owner,dp.colorCalendar,dp.id))
+                }
+                console.log(result)
+                resolve(services)
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function fetchServiceDetails(id) {
     const promise = new Promise((resolve,reject) => {
         database.transaction((tx) => {
             tx.executeSql(`Select * FROM service WHERE id = ?`,
             [id],
             (_, result ) => {
                 
-                console.log(result)
+                console.log("result"+JSON.stringify(result))
+                resolve(result.rows._array[0])
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function fetchCustomerDetails(id) {
+    const promise = new Promise((resolve,reject) => {
+        databaseCustomer.transaction((tx) => {
+            tx.executeSql(`Select * FROM customer WHERE id = ?`,
+            [id],
+            (_, result ) => {
+                
+                console.log("result"+JSON.stringify(result))
+                resolve(result.rows._array[0])
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function updateServiceDetails(service,id) {
+    const promise = new Promise((resolve,reject) => {
+        database.transaction((tx) => {
+            tx.executeSql(`UPDATE service SET idCustomer = ?, category = ?, imageUri = ?, price = ?, date = ?, dateEnd = ?,description = ?, owner = ? WHERE id = ?`,
+            [
+                service.idCustomer,service.category,service.imageUri,service.price,service.date,service.dateEnd,service.description,service.owner,id
+            ],
+            (_, result ) => {
+                console.log("service.id"+service.id+service.category+service.imageUri+service.price+service.date+service.description+service.owner+service.dateEnd+service.id + id)
+
+                console.log("result"+JSON.stringify(result))
+                resolve(result.rows._array[0])
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function deleteChoseOrder(id){
+    const promise = new Promise((resolve,reject) => {
+        database.transaction((tx) => {
+            tx.executeSql(`DELETE FROM service WHERE id = ?`,
+            [
+                id
+            ],
+            (_, result ) => {
+
+                console.log("result"+JSON.stringify(result))
+                resolve(result.rows._array[0])
+            },
+            (_, error) => {
+                reject(error)
+            }
+            );
+        });
+    });
+    return promise;
+}
+export function deleteArchiveChoseOrder(id){
+    const promise = new Promise((resolve,reject) => {
+        archiveOrders.transaction((tx) => {
+            tx.executeSql(`DELETE FROM archiveOrders WHERE id = ?`,
+            [
+                id
+            ],
+            (_, result ) => {
+
+                console.log("result"+JSON.stringify(result))
                 resolve(result.rows._array[0])
             },
             (_, error) => {

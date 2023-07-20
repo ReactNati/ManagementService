@@ -1,11 +1,14 @@
 import { View, Button, Alert, Image, Text, StyleSheet } from 'react-native'
 import { launchCameraAsync, useCameraPermissions, PermissionStatus } from 'expo-image-picker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Colors } from '../../constants/styles';
 import OutlinedButton from '../ui/OutlinedButton';
+import { useNavigation,useRoute,useIsFocused } from '@react-navigation/native';
 
-function ImagePicker({ takeImageForm }) {
-    const [imagePicked, setPickedImage] = useState('')
+function ImagePicker({ takeImageForm,imagePickedUpdate }) {
+    const isFocused = useIsFocused();
+
+    const [imagePicked, setPickedImage] = useState(imagePickedUpdate? imagePickedUpdate:'')
     const [cameraPermissionInformation, requestPermission] = useCameraPermissions();
     async function verifyPermission() {
         if (cameraPermissionInformation.status === PermissionStatus.UNDETERMINED) {
@@ -22,6 +25,12 @@ function ImagePicker({ takeImageForm }) {
         return true;
 
     }
+    useEffect(()=>{
+        console.log(imagePickedUpdate)
+        
+        setPickedImage(imagePickedUpdate)
+    },[isFocused])
+
     async function takePhotohandler() {
         const hasPermission = verifyPermission();
         if (!hasPermission) {

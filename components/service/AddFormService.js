@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import moment from 'moment/moment';
 import Input from './Input';
@@ -7,29 +7,60 @@ import { getFormattedDate } from '../../util/date';
 import { Colors } from '../../constants/styles';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { Service } from '../../models/service';
+import { Customer } from '../../models/customer';
+
 import ImagePicker from './ImagePicker';
-import {useSelector} from 'react-redux'
+import { useSelector } from 'react-redux'
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { fetchCustomer, updateServiceDetails } from '../../util/database';
+import { useNavigation,useRoute,useIsFocused } from '@react-navigation/native';
+import OutlinedButton from '../ui/OutlinedButton';
+import AddCustomer from './AddCustomer';
+import { FlatList } from 'react-native-gesture-handler';
+import CustomerItem from './CustomerItem';
+import { generateColor } from '../../util/randomColor';
 
-function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
-  const [selected, setSelected] = useState("");
-  const [takePhoto, setTakePhoto] = useState();
-
+function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues,id }) {
+  const [selected, setSelected] = useState(defaultValues ? defaultValues.category : 'Select option');
+  const [takePhoto, setTakePhoto] = useState(defaultValues? defaultValues.imageUri.toString(): '');
+  const [addCustomerView, setAddCustomerView] = useState(false);
+  const [showListCustomer, setListCustomerView] = useState(false);
+  const [listCustomer,setListCustomer] = useState([])
+  const [customerSelected,setCustomerSelected] = useState(0)
   const email = useSelector((state) => state.auth.email)
-
+  const navigate = useNavigation();
+  const isFocused = useIsFocused();
+  const [imagePickedUpdate, setImagePickedUpdate] = useState(defaultValues? defaultValues.imageUri.toString(): '');
   const data = [
     { key: '1', value: 'production' },
     { key: '2', value: 'renovation' },
     { key: '3', value: 'repair' },
     { key: '4', value: 'other' },
   ]
+
+  
   const [inputs, setInputs] = useState({
+
     name: {
       value: defaultValues ? defaultValues.name : '',
       isValid: true,
     },
-    category:{
-      value:"",
+    lastName: {
+      value: defaultValues ? defaultValues.lastName : '',
+      isValid: true,
+    },
+    adress: {
+      value: defaultValues ? defaultValues.adress : '',
+      isValid: true,
+    },
+    contact: {
+      value: defaultValues ? defaultValues.contact : '',
+      isValid: true,
+    },
+    category: {
+      value: defaultValues ? () => {
+        console.log(defaultValues.category)
+        setSelected(defaultValues.category) } : 'Select option',
       isValid: true,
     },
     price: {
@@ -37,30 +68,134 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
       isValid: true,
     },
     cashAdvance: {
-      value: defaultValues ? defaultValues.cashAdvance.toString() : '',
+      value: '',
       isValid: true,
     },
     finishPrice: {
-      value: defaultValues ? defaultValues.finishPrice.toString() : '',
+      value: '',
       isValid: true,
     },
     date: {
-      value: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+      value: defaultValues ? moment(defaultValues.date.toString()).format('YYYY-MM-DD HH:mm:ss') : moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
       isValid: true
       // value: defaultValues ? getFormattedDate(defaultValues.date) : '',
       // isValid: true,
     },
-    dateEnd:{
-      value: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+    dateEnd: {
+      value: defaultValues ? moment(defaultValues.dateEnd.toString()).format('YYYY-MM-DD HH:mm:ss') : moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
       isValid: true
     },
     description: {
       value: defaultValues ? defaultValues.description : '',
       isValid: true,
-    },
+    }
+
   });
- 
- 
+  // useEffect(() => {
+  //   async function filterCustomers(){
+  //     const customers = await fetchCustomer();
+  //     const filterCustomer = customers.find((customer)=> customer.idCustomer === defaultValues.idCustomer)
+      
+  //     if(filterCustomer){
+  //       setInputs((prevInputs) => ({
+  //         ...prevInputs,
+  //         name: {
+  //           value: defaultValues ? filterCustomer.name : '',
+  //           isValid: true,
+  //         },
+  //         lastName: {
+  //           value: defaultValues ? filterCustomer.lastName : '',
+  //           isValid: true,
+  //         },
+  //         adress: {
+  //           value: defaultValues ? filterCustomer.adress : '',
+  //           isValid: true,
+  //         },
+  //         contact: {
+  //           value: defaultValues ? filterCustomer.contact : '',
+  //           isValid: true,
+  //         }
+  //       }))
+  //     }
+  //   }
+  //   filterCustomers();
+
+  // },[inputs])
+  useLayoutEffect(() => {
+    if(submitButtonLabel === 'Update'){
+    async function filterCustomers(idCustomer){
+      const customers = await fetchCustomer();
+      const filterCustomer = customers.find((customer)=> customer.idCustomer === idCustomer)
+      console.log("filter" +JSON.stringify(filterCustomer))
+
+    if (isFocused) {
+      
+      console.log(filterCustomer)
+        const isUpdate = submitButtonLabel === 'Update' ? true : false;
+        setSelected(isUpdate ? defaultValues.category : 'Select option')
+        setImagePickedUpdate(isUpdate? defaultValues.imageUri.toString(): '')
+        setTakePhoto(isUpdate? defaultValues.imageUri.toString(): '')
+       
+        // const localizationselected = {
+        //     lat: route.params.selectedLat,
+        //     lng: route.params.selectedLng
+        // }
+        // setPickedLocation(localizationselected)
+        console.log("name" + JSON.stringify(filterCustomer))
+        setInputs((prevInputs) => ({
+          ...prevInputs,
+           name: {
+          value: isUpdate ? filterCustomer.name : '',
+          isValid: true,
+        },
+        lastName: {
+          value: isUpdate ? filterCustomer.lastName : '',
+          isValid: true,
+        },
+        adress: {
+          value: isUpdate ? filterCustomer.adress : '',
+          isValid: true,
+        },
+        contact: {
+          value: isUpdate ? filterCustomer.contact : '',
+          isValid: true,
+        },
+        category: {
+          value: isUpdate ? () => { setSelected(defaultValues.category) } : 'Select option',
+          isValid: true,
+        },
+        price: {
+          value: isUpdate ? defaultValues.price.toString() : '',
+          isValid: true,
+        },
+        cashAdvance: {
+          value: '',
+          isValid: true,
+        },
+        finishPrice: {
+          value: '',
+          isValid: true,
+        },
+        date: {
+          value: defaultValues ? moment(defaultValues.date.toString()).format('YYYY-MM-DD HH:mm:ss') : moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+          isValid: true
+          // value: defaultValues ? getFormattedDate(defaultValues.date) : '',
+          // isValid: true,
+        },
+        dateEnd: {
+          value: defaultValues ? moment(defaultValues.dateEnd.toString()).format('YYYY-MM-DD HH:mm:ss') : moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+          isValid: true
+        },
+        description: {
+          value: defaultValues ? defaultValues.description : '',
+          isValid: true,
+        }
+      }))
+    }
+  }
+  filterCustomers(defaultValues.idCustomer);
+}
+}, [isFocused])
 
   function setInputsForm(inputIdentifier, enteredValue) {
     setInputs((curInputs) => {
@@ -100,10 +235,21 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
     //   date: new Date(inputs.date.value),
     //   description: inputs.description.value,
     // };
-    
 
-    const expenseData = new Service(selected, takePhoto, +inputs.price.value, inputs.date.value, inputs.description.value,email,inputs.dateEnd.value)
-    console.log(+inputs.price.value)
+    const color = generateColor();
+    const customerAdd = new Customer(0,inputs.name.value,inputs.lastName.value,inputs.adress.value,inputs.contact.value)
+    const expenseData = new Service(customerSelected > 0 ? customerSelected : customerAdd.idCustomer,selected, takePhoto, +inputs.price.value, inputs.date.value, inputs.dateEnd.value, inputs.description.value, email,color)
+console.log(customerAdd)
+console.log(expenseData)
+
+    console.log("id"+JSON.stringify(id))
+    if (submitButtonLabel === 'Update') {
+      updateServiceDetails(expenseData, id).finally(()=>{
+        navigate.goBack()
+      })
+      
+      return;
+    }
     const amountIsValid = !isNaN(expenseData.price) && expenseData.price > 0;
     const dateIsValid = expenseData.date.toString() !== 'Invalid Date';
     const dateEnd = expenseData.date.toString() !== 'Invalid Date';
@@ -117,7 +263,7 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
       setInputs((curInputs) => {
         return {
           price: { value: curInputs.price.value, isValid: !amountIsValid },
-          category: { value: selected, isValid: !category},
+          category: { value: selected, isValid: !category },
           date: { value: curInputs.date.value, isValid: !dateIsValid },
           description: {
             value: curInputs.description.value,
@@ -129,13 +275,36 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues }
       return;
     }
 
-    onSubmit(expenseData);
+    onSubmit(expenseData,customerAdd);
     
 
   }
- function onPressDatePicker(date){
-  setInputsForm("dateEnd", date.toISOString().slice(0, 10))
-console.log("onPressDatePicker: " + date)
+  async function showList(){
+   const customers = await fetchCustomer();
+   setListCustomer(customers)
+   setAddCustomerView(false)
+   setListCustomerView(true);
+  }
+  function addCustomer() {
+    setListCustomerView(false);
+    setAddCustomerView(true)
+  }
+  function showOnlyCustomer() {
+    setAddCustomerView((prevState) => !prevState)
+  }
+  function customerIdHandler(customerId){
+    setCustomerSelected(customerId)
+    console.log(customerId)
+  }
+  function renderCustomer(itemData){
+   
+    return (
+      <CustomerItem customer={itemData.item} choseUpdateCustomer={submitButtonLabel === 'Update' ? defaultValues.idCustomer : null}  pressCustomerId={customerIdHandler}/>
+    )
+  }
+  function onPressDatePicker(date) {
+    setInputsForm("dateEnd", date.toISOString().slice(0, 10))
+    console.log("onPressDatePicker: " + date)
   }
   const formIsInvalid =
 
@@ -145,14 +314,15 @@ console.log("onPressDatePicker: " + date)
     !inputs.category.isValid;
 
   return (
+    <>
     <ScrollView>
-    <View>
+      <View>
 
-      <View style={styles.form}>
-        {/* <Text style={styles.title}>Add your service</Text> */}
+        <View style={styles.form}>
+          {/* <Text style={styles.title}>Add your service</Text> */}
 
-      </View>
-      {/* <Input
+        </View>
+        {/* <Input
         label="Name"
         invalid={!inputs.name.isValid}
         textInputConfig={{
@@ -163,29 +333,29 @@ console.log("onPressDatePicker: " + date)
           value: inputs.name.value,
         }}
       /> */}
-      <View style={{
-        marginHorizontal: 4,
-        marginVertical: 8
-      }}>
-        <Text style={[styles.label]}>Category</Text>
-        <SelectList
-          setSelected={(val) => setSelected(val)}
-          data={data}
-          save="value"
-        />
-        <View style={styles.inputsRow}>
-
-          <Input
-            style={styles.rowInput}
-            label="Price"
-            invalid={!inputs.price.isValid}
-            textInputConfig={{
-              keyboardType: 'decimal-pad',
-              onChangeText: inputChangedHandler.bind(this, 'price'),
-              value: inputs.price.value,
-            }}
+        <View style={{
+          marginHorizontal: 4,
+          marginVertical: 8
+        }}>
+          <Text style={[styles.label]}>Category</Text>
+          <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={data}
+            save="value"
           />
-          {/* <Input
+          <View style={styles.inputsRow}>
+
+            <Input
+              style={styles.rowInput}
+              label="Price"
+              invalid={!inputs.price.isValid}
+              textInputConfig={{
+                keyboardType: 'decimal-pad',
+                onChangeText: inputChangedHandler.bind(this, 'price'),
+                value: inputs.price.value,
+              }}
+            />
+            {/* <Input
             style={styles.rowInput}
             label="Price Advance"
             invalid={!inputs.cashAdvance.isValid}
@@ -196,8 +366,8 @@ console.log("onPressDatePicker: " + date)
             }}
           /> */}
 
-        </View>
-        {/* <Input
+          </View>
+          {/* <Input
           label="Finish Price"
           invalid={!inputs.finishPrice.isValid}
           textInputConfig={{
@@ -207,66 +377,127 @@ console.log("onPressDatePicker: " + date)
 
           }}
         /> */}
-        <View style={{  
-          flexDirection: "row",
-        alignItems: 'flex-start',
-        borderRadius: 6,
-        
-        
-        }}>
-        <Input
-          label="Date"
-          invalid={!inputs.date.isValid}
-          editableTextInput={false}
-          textInputConfig={{
-            placeholder: 'YYYY-MM-DD',
-            maxLength: 10,
-            onChangeText: inputChangedHandler.bind(this, 'date'),
-            value: inputs.date.value,
-          }}
-        />
+          <View style={{
+            flexDirection: "row",
+            alignItems: 'flex-start',
+            borderRadius: 6,
+
+
+          }}>
+            <Input
+              label="Date"
+              invalid={!inputs.date.isValid}
+              editableTextInput={false}
+              textInputConfig={{
+                placeholder: 'YYYY-MM-DD',
+                maxLength: 10,
+                onChangeText: inputChangedHandler.bind(this, 'date'),
+                value: inputs.date.value,
+              }}
+            />
+            <Input
+              label="DateEnd"
+              invalid={!inputs.date.isValid}
+              editableTextInput={true}
+              isDatePicker={true}
+              onPressDatePicker={onPressDatePicker}
+              textInputConfig={{
+                placeholder: 'YYYY-MM-DD',
+                maxLength: 10,
+                //onChangeText: inputChangedHandler.bind(this, 'date'),
+                value: inputs.dateEnd.value,
+              }}
+            />
+          </View>
           <Input
-          label="DateEnd"
-          invalid={!inputs.date.isValid}
-          editableTextInput={true}
-          isDatePicker={true}
-          onPressDatePicker={onPressDatePicker}
-          textInputConfig={{
-            placeholder: 'YYYY-MM-DD',
-            maxLength: 10,
-            //onChangeText: inputChangedHandler.bind(this, 'date'),
-            value: inputs.dateEnd.value,
-          }}
-        />
-        </View>
-        <Input
-          label="Description"
-          invalid={!inputs.description.isValid}
-          textInputConfig={{
-            multiline: true,
-            // autoCapitalize: 'none'
-            // autoCorrect: false // default is true
-            onChangeText: inputChangedHandler.bind(this, 'description'),
-            value: inputs.description.value,
-          }}
-        />
-        <ImagePicker takeImageForm={ontakeImageForm} />
-        {formIsInvalid && (
-          <Text style={styles.errorText}>
-            Invalid input values - please check your entered data!
-          </Text>
-        )}
-        <View style={styles.buttons}>
-          <Button style={styles.button} mode="flat" onPress={onCancel}>
-            Cancel
-          </Button>
-          <Button style={styles.button} onPress={submitHandler}>
-            Confirm
-          </Button>
+            label="Description"
+            invalid={!inputs.description.isValid}
+            textInputConfig={{
+              multiline: true,
+              // autoCapitalize: 'none'
+              // autoCorrect: false // default is true
+              onChangeText: inputChangedHandler.bind(this, 'description'),
+              value: inputs.description.value,
+            }}
+          />
+
+          <ImagePicker takeImageForm={ontakeImageForm} imagePickedUpdate={imagePickedUpdate} />
+
+          {formIsInvalid && (
+            <Text style={styles.errorText}>
+              Invalid input values - please check your entered data!
+            </Text>
+          )}
+          {!defaultValues ? <View style={{ flexDirection: 'row' }}>
+            <OutlinedButton icon="add" onPress={addCustomer}>Add customer</OutlinedButton>
+            <OutlinedButton icon="people" onPress={showList}>Chose customer</OutlinedButton>
+          </View> : 
+          <OutlinedButton  icon="people" onPress={showOnlyCustomer}>View customer</OutlinedButton>
+          }
+          {addCustomerView &&  <View><Input
+                label="Name"
+                invalid={!inputs.name.isValid}
+                textInputConfig={{
+                    // autoCapitalize: 'none'
+                    // autoCorrect: false // default is true
+                    onChangeText: inputChangedHandler.bind(this, 'name'),
+                    value: inputs.name.value,
+                }}
+            />
+            <Input
+                label="LastName"
+                invalid={!inputs.lastName.isValid}
+                textInputConfig={{
+                    // autoCapitalize: 'none'
+                    // autoCorrect: false // default is true
+                    onChangeText: inputChangedHandler.bind(this, 'lastName'),
+                    value: inputs.lastName.value,
+                }}
+            />
+            <Input
+                label="Address"
+                invalid={!inputs.adress.isValid}
+                textInputConfig={{
+                    // autoCapitalize: 'none'
+                    // autoCorrect: false // default is true
+                    onChangeText: inputChangedHandler.bind(this, 'adress'),
+                    value: inputs.adress.value,
+                }}
+            />
+            <Input
+                label="Contact"
+                invalid={!inputs.contact.isValid}
+                textInputConfig={{
+                    keyboardType: 'decimal-pad',
+                    // autoCapitalize: 'none'
+                    // autoCorrect: false // default is true
+                    onChangeText: inputChangedHandler.bind(this, 'contact'),
+                    value: inputs.contact.value,
+                }}
+            />
+            </View>
+            }
+          {showListCustomer && <FlatList
+          data={listCustomer}
+          keyExtractor={(item,index) => index.toString()}
+          renderItem={renderCustomer}
+           numColumns={1}
+           horizontal={true}
+
+          />}
+         
         </View>
       </View>
-    </View>
     </ScrollView>
+     <View style={styles.buttons}>
+     <Button style={styles.button} mode="flat" onPress={onCancel}>
+       Cancel
+     </Button>
+     <Button style={styles.button} onPress={submitHandler}>
+       {submitButtonLabel}
+     </Button>
+   </View>
+   </>
   );
 }
 
@@ -304,6 +535,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
+    paddingTop:9
   },
   button: {
     minWidth: 120,

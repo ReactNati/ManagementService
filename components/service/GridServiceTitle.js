@@ -58,7 +58,6 @@ function GridServiceTitle({ title, color, onPress, order, longPress,deleteItem, 
                 const hoursDateEnd = Math.abs(moment(dateFrom).diff(dateTo)) / 36e5;
                 const hoursDateTo = Math.abs(moment(new Date()).diff(dateFrom)) / 36e5;
                const progressHours = hoursDateTo/hoursDateEnd
-               console.log(progressHours)
                 resolve(progressHours)
             } catch (error) {
                 reject(false)
@@ -68,12 +67,10 @@ function GridServiceTitle({ title, color, onPress, order, longPress,deleteItem, 
     let interval = null;
 
     if(moment(new Date(order.dateEnd)).isAfter(moment(new Date()))){
-        console.log("interval")
         interval = setInterval(() => {
             
          calculateProgressBar().then((resolve) => {
             if(resolve){
-                console.log(resolve)
                 setProgress(resolve)
             }
         })
@@ -99,9 +96,7 @@ function GridServiceTitle({ title, color, onPress, order, longPress,deleteItem, 
                  <View style={[styles.item, { backgroundColor: color },{width:width}]}
 
                 >
-                {/* <View style={styles.innerTextContainer}>
-                    <Text style={styles.textCategory}> {title}</Text>
-                </View> */}
+                
                 
                  <Image style={styles.image} source={{ uri: order.imageUri }} />
             <View style={styles.info}>
@@ -121,17 +116,7 @@ export default GridServiceTitle;
 
 const styles = StyleSheet.create({
     gridItem: {
-        // flex: 1,
-        // margin: 16,
-        // height: 150,
-        // borderRadius: 8,
-        // elevation: 4,
-
-        // shadowColor: 'black',
-        // shadowOffset: { width: 0, height: 3 },
-        // shadowOpacity: 0.25,
-        // shadowRadius: 8,
-        // overflow: Platform.OS === 'android' ? 'hidden' : 'visible'
+        
         margin:5,
         borderRadius:8,
         overflow:'hidden',
@@ -162,11 +147,7 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         marginVertical: 12,
         backgroundColor: 'white',
-        // elevation: 2,
-        // shadowColor: 'black',
-        // shadowOpacity: 0.15,
-        // shadowOffset: { width: 1, height: 1 },
-        // shadowRadius: 2
+      
     },
     innerTextContainer:{
         justifyContent: 'center',

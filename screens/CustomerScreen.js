@@ -25,7 +25,6 @@ function CustomerScreen() {
 
       if (isFocused) {
         loadCustomers();
-        //  setLoadedPlaces((curPlaces)=>[...curPlaces,route.params.place])
       }
     }, [isFocused])
 

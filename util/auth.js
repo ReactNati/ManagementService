@@ -1,16 +1,11 @@
 import axios from 'axios';
-//import Constants from 'expo-constants';
-//import {API_KEY} from 'react-native-dotenv'
-//const API_KEY = Constants.expoConfig.extra.API_KEY;
-//import { API_KEY } from 'react-native-dotenv'
+
 import { REACT_APP_API_KEY } from "@env"
 
 const apiKey = REACT_APP_API_KEY;
 
 export async function authenticate(mode,email,password){
-    console.log("API_KEY2" + JSON.stringify( { REACT_APP_API_KEY }))
 
-    console.log("API_KEY" + JSON.stringify(apiKey))
     let tokens = null;
     try{
     const response = await axios.post(
@@ -21,7 +16,6 @@ export async function authenticate(mode,email,password){
             returnSecureToken: true
         }
     )
-    console.log(response.data)
     const emailResponse = response.data.email;
     const tokenId = response.data.idToken;
     const refreshToken = response.data.refreshToken;
@@ -60,7 +54,6 @@ export async function refreshToken(refreshToken){
             refresh_token: refreshToken
         }
     )
-console.log("repsonsedata" +response.data.refresh_token)
 return response.data.id_token;
 }
 

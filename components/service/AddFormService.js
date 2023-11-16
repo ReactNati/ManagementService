@@ -59,7 +59,6 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues,i
     },
     category: {
       value: defaultValues ? () => {
-        console.log(defaultValues.category)
         setSelected(defaultValues.category) } : 'Select option',
       isValid: true,
     },
@@ -78,8 +77,7 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues,i
     date: {
       value: defaultValues ? moment(defaultValues.date.toString()).format('YYYY-MM-DD HH:mm:ss') : moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
       isValid: true
-      // value: defaultValues ? getFormattedDate(defaultValues.date) : '',
-      // isValid: true,
+     
     },
     dateEnd: {
       value: defaultValues ? moment(defaultValues.dateEnd.toString()).format('YYYY-MM-DD HH:mm:ss') : moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
@@ -91,57 +89,21 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues,i
     }
 
   });
-  // useEffect(() => {
-  //   async function filterCustomers(){
-  //     const customers = await fetchCustomer();
-  //     const filterCustomer = customers.find((customer)=> customer.idCustomer === defaultValues.idCustomer)
-      
-  //     if(filterCustomer){
-  //       setInputs((prevInputs) => ({
-  //         ...prevInputs,
-  //         name: {
-  //           value: defaultValues ? filterCustomer.name : '',
-  //           isValid: true,
-  //         },
-  //         lastName: {
-  //           value: defaultValues ? filterCustomer.lastName : '',
-  //           isValid: true,
-  //         },
-  //         adress: {
-  //           value: defaultValues ? filterCustomer.adress : '',
-  //           isValid: true,
-  //         },
-  //         contact: {
-  //           value: defaultValues ? filterCustomer.contact : '',
-  //           isValid: true,
-  //         }
-  //       }))
-  //     }
-  //   }
-  //   filterCustomers();
-
-  // },[inputs])
+  
   useLayoutEffect(() => {
     if(submitButtonLabel === 'Update'){
     async function filterCustomers(idCustomer){
       const customers = await fetchCustomer();
       const filterCustomer = customers.find((customer)=> customer.idCustomer === idCustomer)
-      console.log("filter" +JSON.stringify(filterCustomer))
 
     if (isFocused) {
       
-      console.log(filterCustomer)
         const isUpdate = submitButtonLabel === 'Update' ? true : false;
         setSelected(isUpdate ? defaultValues.category : 'Select option')
         setImagePickedUpdate(isUpdate? defaultValues.imageUri.toString(): '')
         setTakePhoto(isUpdate? defaultValues.imageUri.toString(): '')
        
-        // const localizationselected = {
-        //     lat: route.params.selectedLat,
-        //     lng: route.params.selectedLng
-        // }
-        // setPickedLocation(localizationselected)
-        console.log("name" + JSON.stringify(filterCustomer))
+       
         setInputs((prevInputs) => ({
           ...prevInputs,
            name: {
@@ -211,38 +173,17 @@ function AddFormService({ submitButtonLabel, onCancel, onSubmit, defaultValues,i
   function inputChangedHandler(inputIdentifier, enteredValue) {
     const finishPrice = 0;
 
-    // switch (inputIdentifier) {
-    //   case 'price':
-    //     finishPrice = Number(inputs.price.value) - Number(inputs.cashAdvance.value)
-    //     setInputs('finishPrice', finishPrice.toString())
-    //     // setEnteredEmail(enteredValue);
-    //     break;
-    //   // case 'cashAdvance':
-    //   //     finishPrice = inputs.price.value - inputs.cashAdvance.value
-    //   //     setInputs('finishPrice',finishPrice.toString())
-    //   // //  setEnteredEmail(enteredValue);
-    //   //   break;  
-    // }
+    
     setInputsForm(inputIdentifier, enteredValue)
   }
 
   function submitHandler() {
-    // const expenseData = {
-    //   //category,imageUri,price,date,description
-    //   category: selected,
-    //   //imageUri: ,
-    //   price: +inputs.price.value,
-    //   date: new Date(inputs.date.value),
-    //   description: inputs.description.value,
-    // };
+   
 
     const color = generateColor();
     const customerAdd = new Customer(0,inputs.name.value,inputs.lastName.value,inputs.adress.value,inputs.contact.value)
     const expenseData = new Service(customerSelected > 0 ? customerSelected : customerAdd.idCustomer,selected, takePhoto, +inputs.price.value, inputs.date.value, inputs.dateEnd.value, inputs.description.value, email,color)
-console.log(customerAdd)
-console.log(expenseData)
 
-    console.log("id"+JSON.stringify(id))
     if (submitButtonLabel === 'Update') {
       updateServiceDetails(expenseData, id).finally(()=>{
         navigate.goBack()
@@ -256,10 +197,7 @@ console.log(expenseData)
     const descriptionIsValid = expenseData.description.trim().length > 0;
     const category = selected !== ""
 
-    console.log(amountIsValid + dateIsValid + !descriptionIsValid + !category)
     if (!amountIsValid || !dateIsValid || !descriptionIsValid || !category || !dateEnd) {
-      // Alert.alert('Invalid input', 'Please check your input values');
-      console.log("data" + amountIsValid + dateIsValid + !descriptionIsValid + !category)
       setInputs((curInputs) => {
         return {
           price: { value: curInputs.price.value, isValid: !amountIsValid },
@@ -294,7 +232,6 @@ console.log(expenseData)
   }
   function customerIdHandler(customerId){
     setCustomerSelected(customerId)
-    console.log(customerId)
   }
   function renderCustomer(itemData){
    
@@ -304,7 +241,6 @@ console.log(expenseData)
   }
   function onPressDatePicker(date) {
     setInputsForm("dateEnd", date.toISOString().slice(0, 10))
-    console.log("onPressDatePicker: " + date)
   }
   const formIsInvalid =
 
@@ -319,20 +255,9 @@ console.log(expenseData)
       <View>
 
         <View style={styles.form}>
-          {/* <Text style={styles.title}>Add your service</Text> */}
 
         </View>
-        {/* <Input
-        label="Name"
-        invalid={!inputs.name.isValid}
-        textInputConfig={{
-          multiline: false,
-          // autoCapitalize: 'none'
-          // autoCorrect: false // default is true
-          onChangeText: inputChangedHandler.bind(this, 'name'),
-          value: inputs.name.value,
-        }}
-      /> */}
+      
         <View style={{
           marginHorizontal: 4,
           marginVertical: 8
@@ -355,28 +280,10 @@ console.log(expenseData)
                 value: inputs.price.value,
               }}
             />
-            {/* <Input
-            style={styles.rowInput}
-            label="Price Advance"
-            invalid={!inputs.cashAdvance.isValid}
-            textInputConfig={{
-              keyboardType: 'decimal-pad',
-              onChangeText: inputChangedHandler.bind(this, 'cashAdvance'),
-              value: inputs.cashAdvance.value,
-            }}
-          /> */}
+           
 
           </View>
-          {/* <Input
-          label="Finish Price"
-          invalid={!inputs.finishPrice.isValid}
-          textInputConfig={{
-            keyboardType: 'decimal-pad',
-            onChangeText: inputChangedHandler.bind(this, 'finishPrice'),
-            value: inputs.finishPrice.value,
-
-          }}
-        /> */}
+         
           <View style={{
             flexDirection: "row",
             alignItems: 'flex-start',
@@ -404,7 +311,6 @@ console.log(expenseData)
               textInputConfig={{
                 placeholder: 'YYYY-MM-DD',
                 maxLength: 10,
-                //onChangeText: inputChangedHandler.bind(this, 'date'),
                 value: inputs.dateEnd.value,
               }}
             />
@@ -414,8 +320,7 @@ console.log(expenseData)
             invalid={!inputs.description.isValid}
             textInputConfig={{
               multiline: true,
-              // autoCapitalize: 'none'
-              // autoCorrect: false // default is true
+            
               onChangeText: inputChangedHandler.bind(this, 'description'),
               value: inputs.description.value,
             }}

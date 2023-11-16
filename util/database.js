@@ -85,7 +85,6 @@ export function insertService(service) {
             ],
             (_, result ) => {
                 
-                console.log(result)
                 resolve(result)
             },
             (_, error) => {
@@ -105,7 +104,6 @@ export function insertArchiveOrders(service) {
             ],
             (_, result ) => {
                 
-                console.log(result)
                 resolve(result)
             },
             (_, error) => {
@@ -125,7 +123,6 @@ export function insertCustomer(customer) {
             ],
             (_, result ) => {
                 
-                console.log("insertcusto"+JSON.stringify(result))
                 resolve(result)
             },
             (_, error) => {
@@ -142,7 +139,6 @@ export function fetchCustomer() {
             tx.executeSql(`Select * FROM customer`,
             [],
             (_, result ) => {
-                console.log("assadasd1"+JSON.stringify(result.rows._array[2]))
                 const customer = [];
                 
                 for (const dp of result.rows._array){
@@ -170,7 +166,6 @@ export function fetchServices(owner) {
                     
                     services.push(new Service(dp.idCustomer,dp.category,dp.imageUri,dp.price,dp.date,dp.dateEnd,dp.description,dp.owner,dp.colorCalendar,dp.id))
                 }
-                console.log(result)
                 resolve(services)
             },
             (_, error) => {
@@ -192,7 +187,6 @@ export function fetchArchiveOrders(owner) {
                     
                     services.push(new Service(dp.idCustomer,dp.category,dp.imageUri,dp.price,dp.date,dp.dateEnd,dp.description,dp.owner,dp.colorCalendar,dp.id))
                 }
-                console.log(result)
                 resolve(services)
             },
             (_, error) => {
@@ -210,7 +204,6 @@ export function fetchServiceDetails(id) {
             [id],
             (_, result ) => {
                 
-                console.log("result"+JSON.stringify(result))
                 resolve(result.rows._array[0])
             },
             (_, error) => {
@@ -228,7 +221,6 @@ export function fetchCustomerDetails(id) {
             [id],
             (_, result ) => {
                 
-                console.log("result"+JSON.stringify(result))
                 resolve(result.rows._array[0])
             },
             (_, error) => {
@@ -247,9 +239,7 @@ export function updateServiceDetails(service,id) {
                 service.idCustomer,service.category,service.imageUri,service.price,service.date,service.dateEnd,service.description,service.owner,id
             ],
             (_, result ) => {
-                console.log("service.id"+service.id+service.category+service.imageUri+service.price+service.date+service.description+service.owner+service.dateEnd+service.id + id)
 
-                console.log("result"+JSON.stringify(result))
                 resolve(result.rows._array[0])
             },
             (_, error) => {
@@ -269,7 +259,6 @@ export function deleteChoseOrder(id){
             ],
             (_, result ) => {
 
-                console.log("result"+JSON.stringify(result))
                 resolve(result.rows._array[0])
             },
             (_, error) => {
@@ -289,7 +278,6 @@ export function deleteArchiveChoseOrder(id){
             ],
             (_, result ) => {
 
-                console.log("result"+JSON.stringify(result))
                 resolve(result.rows._array[0])
             },
             (_, error) => {

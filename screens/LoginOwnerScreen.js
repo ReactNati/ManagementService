@@ -8,15 +8,13 @@ import {useSelector,useDispatch} from 'react-redux'
 function LoginOwnerScreen() {
 
   const [isAuthenticating,setIsAuthenticating] = useState(false);
-  //const authCtx = useContext(AuthContext)
-  //const auth = useSelector((state)=> state.auth.token) 
+  
   const dispatch = useDispatch();
   async function loginHandler({email,password}){
 
     try{
     setIsAuthenticating(true);
     const token = await login(email,password);
-   // authCtx.authenticate(token);
     dispatch(authenticate({token:token[0],email:token[2],firstLaunch:true}))
     setIsAuthenticating(false);
 

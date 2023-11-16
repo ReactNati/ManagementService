@@ -26,39 +26,23 @@ function ArchiveOrders() {
   useLayoutEffect(() => {
 
     async function loadPlaces() {
-      // const servicee = useSelector((state) => state.auth.email)
-      // console.log("service" + JSON.stringify(servicee))
+      
       const services = await fetchArchiveOrders(email);
-      console.log("services" + JSON.stringify(services));
       setLoadedServicess(services);
     }
     if (isFocused) {
       loadPlaces();
-      //  setLoadedPlaces((curPlaces)=>[...curPlaces,route.params.place])
     }
   }, [isFocused])
 
   function renderServiceDetails(itemData) {
 
-    async function pressHandler() {
-
-    //   fetchServiceDetails(itemData.index + 1).then((response) => {
-    //     console.log(response)
-    //     navigation.navigate("ManageService", {
-    //       serviceId: response.id,
-    //       fetchService: response
-
-    //     })
-    //   })
-
-
-    }
+  
 
     function longPress() {
       function deleteItem() {
         deleteArchiveChoseOrder(itemData.item.id).finally(async () => {
           const services = await fetchArchiveOrders(email);
-          console.log("services" + JSON.stringify(services));
           setLoadedServicess(services);
         })
       }
@@ -80,22 +64,10 @@ function ArchiveOrders() {
     )
   }
 
-  //const authCtx = useContext(AuthContext);
-  //const token = authCtx.token;
-  //   useEffect(()=>{
-  //     try{
-  //     axios.get("https://reactnativecours-default-rtdb.firebaseio.com/message.json?auth=" + token).then((response)=>{
-  //     console.log(response.data)
-  //     setFetchMessage(response.data)
-  //     })
-  //   } catch(error){
-  //     Alert.alert(error)
-  //   }
-  // },[token])
+
   async function loadOrders(){
     const services = await fetchArchiveOrders(email)
     setRefreshing(false)
-    console.log("indicatos" + JSON.stringify(services));
     setLoadedServicess(services);
   }
 

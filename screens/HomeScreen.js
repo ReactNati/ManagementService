@@ -20,21 +20,13 @@ import {
 import { useIsFocused } from "@react-navigation/native";
 import { fetchServiceDetails, fetchCustomer } from "../util/database";
 import { useNavigation } from "@react-navigation/native";
-//import { BannerAd, BannerAdSize, MobileAds, TestIds, InterstitialAd } from 'react-native-google-mobile-ads';
-// import {
-//   InterstitialAd,
-//   AdEventType,
-//   TestIds,
-// } from "react-native-google-mobile-ads";
+
 import Onboarding from "react-native-onboarding-swiper";
 import IconButton from "../components/ui/IconButton";
 import { ScrollView } from "react-native-gesture-handler";
 import {setFirstLaunch} from '../store/redux/auth';
 
-// const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
-//   requestNonPersonalizedAdsOnly: true,
-//   keywords: ["fashion", "clothing"],
-// });
+
 
 function HomeScreen() {
   const [fetchMessage, setFetchMessage] = useState("");
@@ -48,22 +40,13 @@ function HomeScreen() {
   const email = useSelector((state) => state.auth.email);
   const firstLaunch = useSelector((state) => state.auth.firstLaunch);
 
-  // const dataExample = [
-  //   { id: 1, title: "Add service" }
 
-  // ]
-  // useEffect(()=>{
-  //  // const auth = useSelector((state)=> state.auth.token)
-
-  // })
   const isFocused = useIsFocused();
 
   useLayoutEffect(() => {
     async function loadPlaces() {
-    // const servicee = useSelector((state) => state.auth.email)
-      // console.log("serviceeee" + JSON.stringify(servicee))
+   
       const services = await fetchServices(email);
-      console.log("services2" + JSON.stringify(services));
       if(services.lenght > 0){
       setIntro(false);
       }else{
@@ -75,27 +58,13 @@ function HomeScreen() {
     }
     if (isFocused) {
       loadPlaces();
-      //  setLoadedPlaces((curPlaces)=>[...curPlaces,route.params.place])
-
-      // const unsubscribe = interstitial.addAdEventListener(
-      //   AdEventType.LOADED,
-      //   () => {
-      //     setLoaded(true);
-      //     interstitial.show();
-      //   }
-      // );
-
-      // Start loading the interstitial straight away
-      // interstitial.load();
-      // Unsubscribe from events on unmount
-      //return unsubscribe;
+    
     }
   }, [isFocused]);
 
   function renderServiceDetails(itemData) {
     async function pressHandler() {
       fetchServiceDetails(itemData.index + 1).then((response) => {
-        console.log(response);
         navigation.navigate("ManageService", {
           serviceId: response.id,
           fetchService: response,
@@ -105,7 +74,6 @@ function HomeScreen() {
     function deleteOrder() {
       deleteChoseOrder(itemData.item.id).finally(async () => {
         const services = await fetchServices(email);
-        console.log("services" + JSON.stringify(services));
         setLoadedServicess(services);
       });
     }
@@ -113,7 +81,6 @@ function HomeScreen() {
       function deleteItem() {
         deleteChoseOrder(itemData.item.id).finally(async () => {
           const services = await fetchServices(email);
-          console.log("services" + JSON.stringify(services));
           setLoadedServicess(services);
         });
       }
@@ -121,7 +88,7 @@ function HomeScreen() {
       Alert.alert("alert", "Do you want delete this order ? ", [
         {
           text: "Cancel",
-          //onPress: () => console.log("Cancel Pressed"),
+          //onPress: () => // TO DO onPress 
           style: "cancel",
         },
         { text: "OK", onPress: deleteItem },
@@ -144,41 +111,15 @@ function HomeScreen() {
   function navigateToManageServiceService() {
     navigation.navigate("ManageService");
   }
-  //const authCtx = useContext(AuthContext);
-  //const token = authCtx.token;
-  //   useEffect(()=>{
-  //     try{
-  //     axios.get("https://reactnativecours-default-rtdb.firebaseio.com/message.json?auth=" + token).then((response)=>{
-  //     console.log(response.data)
-  //     setFetchMessage(response.data)
-  //     })
-  //   } catch(error){
-  //     Alert.alert(error)
-  //   }
-  // },[token])
-  // useEffect(() => {
 
-  //   const unsubscribe = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-  //     setLoaded(true);
-  //   });
-
-  //   // Start loading the interstitial straight away
-  //   interstitial.load();
-
-  //   // Unsubscribe from events on unmount
-  //   return unsubscribe;
-  // }, []);
 
   async function loadOrders() {
     const services = await fetchServices(email);
     setRefreshing(false);
-    console.log("indicatos" + JSON.stringify(services));
     setLoadedServicess(services);
   }
 
-  // if (!loaded) {
-  //   return null;
-  // }
+ 
 
   return (
      
@@ -200,9 +141,7 @@ function HomeScreen() {
         renderItem={renderServiceDetails}
         numColumns={1}
         horizontal={false}
-        // refreshControl={
-        //   <RefreshControl refreshing={refreshing} onRefresh={loadOrders} />
-        // }
+       
       />
       </View>
       
@@ -250,17 +189,6 @@ function HomeScreen() {
   );
 
 
-  {
-    /* <InterstitialAd
-    unitId={TestIds.BANNER}
-     // unitId={"ca-app-pub-5936989251991214/8487680324"}
-      size={BannerAdSize.LARGE_BANNER}
-      requestOptions={{
-        requestNonPersonalizedAdsOnly: true,
-       // onAdFailedToLoad: (error) => {console.error(error)}
-      }}
-    /> */
-  }
 }
 
 export default HomeScreen;

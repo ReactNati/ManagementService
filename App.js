@@ -1,15 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-//import AppLoading from 'expo-app-loading'
 import LoginOwnerScreen from './screens/LoginOwnerScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import { Colors } from './constants/styles';
-//import AuthContextProvider, { AuthContext } from './store/auth-context';
 import { useEffect, useState } from 'react';
 import IconButton from './components/ui/IconButton'
-//import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Provider,useSelector,useDispatch} from 'react-redux'
 import {store} from './store/redux/store'
 import {logout} from './store/redux/auth';
@@ -60,9 +57,7 @@ const dispatch = useDispatch();
         />}
       }}/>
       <Drawer.Screen name="ManageService" component={ManageService} options={{
-        // headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
-        // onPress={()=> dispatch(logout())}
-        // />}
+        
       }}/>
        <Drawer.Screen name="ArchiveOrders" component={ArchiveOrders} options={{
         headerRight:({tintColor})=>{return <IconButton icon='exit' color={tintColor} size={20} 
@@ -84,28 +79,13 @@ const dispatch = useDispatch();
 }
 function Root(){
   const [isTryingLogin,setIsTryingLogin] = useState(true);
- // const authCtx = useContext(AuthContext);
-//   useEffect(() =>{
-//     async function fetchToken(){
-//         const storedToken = await AsyncStorage.getItem('token');
-//         if(storedToken) {
-//        //   authCtx.authenticate(storedToken)
-//            // setAuthToken(storedToken);
-//         }
-//     }
-//     fetchToken();
-// },[])
-
-// if(isTryingLogin){
-//   return <AppLoading />
-// }
+ 
 
 return (<Navigation></Navigation>)
 }
 function Navigation() {
   const isAuthenticated = useSelector((state)=> state.auth.isAuthenticated) 
- // const authCtx = useContext(AuthContext)
-// console.log("ads"+ authCtx.isAuthenticated)
+
   return (
     <NavigationContainer>
       

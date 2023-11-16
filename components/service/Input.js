@@ -26,14 +26,7 @@ function Input({ label, invalid, style, textInputConfig,editableTextInput,onPres
     onPressDatePicker(currentDate);
   };
 
-  // function onTimeChange(event, selectedDate){
-  //   console.log("Eventrt" +JSON.stringify(event))
-    
-  //   const currentDate = selectedDate;
-  //   setTime(currentDate);
-    
-  //   onPressDatePicker(date);
-  // };
+
 
   const showMode = (currentMode) => {
     if(isDatePicker){
